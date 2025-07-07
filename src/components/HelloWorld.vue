@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 
 defineProps<{ msg: string }>()
 
@@ -8,9 +7,7 @@ defineProps<{ msg: string }>()
 <template>
   <h1> {{ msg }} </h1>
 
-  <form @submit.prevent="submitForm">
-    <button @click="open">开</button>
-  </form>
+  <button @click="open">开</button>
 
   <div v-if="response">
     <pre>{{ response }}</pre>
@@ -31,22 +28,19 @@ export default {
       },
       loading: false,
       response: null,
-      error: null,
+      error: "",
     };
   },
   methods: {
     async open() {
       this.loading = true;
       this.response = null;
-      this.error = null;
+      this.error = "";
 
       try {
         const res = await fetch('https://main.d32fsrln6io36p.amplifyapp.com/api/legacy', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: this.formData,
+          body: JSON.stringify(this.formData),
         });
 
         if (!res.ok) {
@@ -56,7 +50,8 @@ export default {
         const data = await res.json();
         this.response = data;
       } catch (err) {
-        this.error = err.message;
+        const errorObject = err as Error;
+        this.error = errorObject.message;
       } finally {
         this.loading = false;
       }
