@@ -3,39 +3,64 @@ import { ref } from 'vue'
 
 defineProps<{ msg: string }>()
 
-const count = ref(0)
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
+  <h1> {{ msg }} </h1>
 
-  <div class="card">
-    <button type="button" @click="count++">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
+  <form @submit.prevent="submitForm">
+    <button @click="open">开</button>
+  </form>
+
+  <div v-if="response">
+    <pre>{{ response }}</pre>
   </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Learn more about IDE Support for Vue in the
-    <a
-      href="https://vuejs.org/guide/scaling-up/tooling.html#ide-support"
-      target="_blank"
-      >Vue Docs Scaling up Guide</a
-    >.
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+  <div v-if="error">
+    <p style="color: red;">{{ error }}</p>
+  </div>
 </template>
 
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>
+
+<script lang="ts">
+export default {
+  name: 'PostRequestForm',
+  data() {
+    return {
+      formData: {
+        password: '7a',
+      },
+      loading: false,
+      response: null,
+      error: null,
+    };
+  },
+  methods: {
+    async open() {
+      this.loading = true;
+      this.response = null;
+      this.error = null;
+
+      try {
+        const res = await fetch('https://main.d32fsrln6io36p.amplifyapp.com/api/legacy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: this.formData,
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        this.response = data;
+      } catch (err) {
+        this.error = err.message;
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+};
+</script>
