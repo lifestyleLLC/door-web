@@ -12,7 +12,7 @@ defineProps<{ msg: string }>()
   <div v-if="response">
     <pre>{{ response }}</pre>
   </div>
-  <div v-if="error">
+  <div v-if="error != ''">
     <p style="color: red;">{{ error }}</p>
   </div>
 </template>
@@ -23,24 +23,20 @@ export default {
   name: 'PostRequestForm',
   data() {
     return {
-      formData: {
-        password: '7a',
-      },
       loading: false,
       response: null,
-      error: "",
+      error: '',
     };
   },
   methods: {
     async open() {
       this.loading = true;
       this.response = null;
-      this.error = "";
+      this.error = '';
 
       try {
-        const res = await fetch('https://main.d32fsrln6io36p.amplifyapp.com/api/legacy', {
+        const res = await fetch('https://door-forwarding-321454866003.us-south1.run.app', {
           method: 'POST',
-          body: JSON.stringify(this.formData),
         });
 
         if (!res.ok) {
@@ -50,8 +46,8 @@ export default {
         const data = await res.json();
         this.response = data;
       } catch (err) {
-        const errorObject = err as Error;
-        this.error = errorObject.message;
+        const errorObject = err as string;
+        this.error = errorObject;
       } finally {
         this.loading = false;
       }
